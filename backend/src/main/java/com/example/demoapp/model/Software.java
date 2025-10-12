@@ -14,8 +14,8 @@ public class Software {
     private String videoUrl;
     private String zipUrl;
     private double price;
-    private String uploadedBy; // Add this field
-
+    private String uploadedBy;
+    private String category; // Add this field
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -33,7 +33,9 @@ public class Software {
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
 
-   public String getUploadedBy() { return uploadedBy; }
-   public void setUploadedBy(String uploadedBy) { this.uploadedBy = uploadedBy; }
+    public String getUploadedBy() { return uploadedBy; }
+    public void setUploadedBy(String uploadedBy) { this.uploadedBy = uploadedBy; }
 
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }

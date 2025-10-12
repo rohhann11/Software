@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/demote/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/api/payment/create-payment").authenticated()
                 .requestMatchers("/api/payment/execute-payment").authenticated()
+                .requestMatchers("/api/software/download/**").authenticated()
                 .anyRequest().authenticated()
             );
 
@@ -56,7 +57,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://192.168.1.33:3000");
+        config.addAllowedOrigin("http://192.168.1.34:3000");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

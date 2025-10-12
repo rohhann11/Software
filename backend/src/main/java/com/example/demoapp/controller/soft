@@ -56,7 +56,7 @@ public class SoftwareController {
     }
 
     /**
-     * Upload software: title, demo video, ZIP file, price, category
+     * Upload software: title, demo video, ZIP file, price
      */
     @PostMapping("/upload")
     public ResponseEntity<?> uploadSoftware(
@@ -64,7 +64,6 @@ public class SoftwareController {
             @RequestParam("video") MultipartFile video,
             @RequestParam("zipFile") MultipartFile zipFile,
             @RequestParam("price") Double price,
-            @RequestParam("category") String category,
             HttpServletRequest request) {
 
         // Get username from token
@@ -86,9 +85,6 @@ public class SoftwareController {
         }
         if (price == null || price <= 0) {
             return ResponseEntity.badRequest().body("Valid price is required");
-        }
-        if (category == null || category.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Category is required");
         }
 
         // Ensure upload directory exists and is writable
@@ -140,10 +136,9 @@ public class SoftwareController {
             software.setZipUrl("/uploads/" + zipFileName);
             software.setPrice(price);
             software.setUploadedBy(username);
-            software.setCategory(category.trim());
 
             Software saved = softwareRepository.save(software);
-            log.info("✅ Software saved to DB with ID: " + saved.getId() + " and category: " + category);
+            log.info("✅ Software saved to DB with ID: " + saved.getId());
             return ResponseEntity.ok(saved);
 
         } catch (IOException e) {
@@ -167,7 +162,6 @@ public class SoftwareController {
             @RequestParam(value = "video", required = false) MultipartFile video,
             @RequestParam(value = "zipFile", required = false) MultipartFile zipFile,
             @RequestParam(value = "price", required = false) Double price,
-            @RequestParam(value = "category", required = false) String category,
             HttpServletRequest request) {
 
         // Get username from token
@@ -199,10 +193,6 @@ public class SoftwareController {
 
             if (price != null && price > 0) {
                 software.setPrice(price);
-            }
-
-            if (category != null && !category.trim().isEmpty()) {
-                software.setCategory(category.trim());
             }
 
             if (video != null && !video.isEmpty()) {
@@ -285,36 +275,6 @@ public class SoftwareController {
     public List<Software> getAllSoftware() {
         log.info("📋 Fetching all software from DB");
         return softwareRepository.findAll();
-    }
-
-    /**
-     * Get all distinct categories
-     */
-    @GetMapping("/categories")
-    public ResponseEntity<List<String>> getAllCategories() {
-        try {
-            List<String> categories = softwareRepository.findDistinctCategories();
-            log.info("📋 Found {} categories", categories.size());
-            return ResponseEntity.ok(categories);
-        } catch (Exception e) {
-            log.error("Error fetching categories: " + e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
-
-    /**
-     * Get software by category
-     */
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<Software>> getSoftwareByCategory(@PathVariable String category) {
-        try {
-            List<Software> softwareList = softwareRepository.findByCategory(category);
-            log.info("📋 Found {} software in category: {}", softwareList.size(), category);
-            return ResponseEntity.ok(softwareList);
-        } catch (Exception e) {
-            log.error("Error fetching software by category: " + e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
     }
 
     /**
@@ -481,6 +441,155 @@ public class SoftwareController {
 
         return ResponseEntity.ok(response);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Add these methods to your existing SoftwareController.java
+
+/**
+ * Get all distinct categories
+ */
+@GetMapping("/categories")
+public ResponseEntity<List<String>> getAllCategories() {
+    try {
+        List<String> categories = softwareRepository.findDistinctCategories();
+        log.info("📋 Found {} categories", categories.size());
+        return ResponseEntity.ok(categories);
+    } catch (Exception e) {
+        log.error("Error fetching categories: " + e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+/**
+ * Get software by category
+ */
+@GetMapping("/category/{category}")
+public ResponseEntity<List<Software>> getSoftwareByCategory(@PathVariable String category) {
+    try {
+        List<Software> softwareList = softwareRepository.findByCategory(category);
+        log.info("📋 Found {} software in category: {}", softwareList.size(), category);
+        return ResponseEntity.ok(softwareList);
+    } catch (Exception e) {
+        log.error("Error fetching software by category: " + e.getMessage(), e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    }
+}
+
+/**
+ * Update upload method to include category
+ */
+@PostMapping("/upload")
+public ResponseEntity<?> uploadSoftware(
+        @RequestParam("title") String title,
+        @RequestParam("video") MultipartFile video,
+        @RequestParam("zipFile") MultipartFile zipFile,
+        @RequestParam("price") Double price,
+        @RequestParam("category") String category, // Add category parameter
+        HttpServletRequest request) {
+
+    // ... existing validation code ...
+
+    // Validate category
+    if (category == null || category.trim().isEmpty()) {
+        return ResponseEntity.badRequest().body("Category is required");
+    }
+
+    try {
+        // ... existing file upload code ...
+
+        // Save to DB with category
+        Software software = new Software();
+        software.setTitle(title.trim());
+        software.setVideoUrl("/uploads/" + videoFileName);
+        software.setZipUrl("/uploads/" + zipFileName);
+        software.setPrice(price);
+        software.setUploadedBy(username);
+        software.setCategory(category.trim()); // Set category
+
+        Software saved = softwareRepository.save(software);
+        log.info("✅ Software saved to DB with ID: " + saved.getId() + " and category: " + category);
+        return ResponseEntity.ok(saved);
+
+    } catch (Exception e) {
+        // ... existing error handling ...
+    }
+}
+
+/**
+ * Update software method to include category
+ */
+@PutMapping("/update/{id}")
+public ResponseEntity<?> updateSoftware(
+        @PathVariable Long id,
+        @RequestParam(value = "title", required = false) String title,
+        @RequestParam(value = "video", required = false) MultipartFile video,
+        @RequestParam(value = "zipFile", required = false) MultipartFile zipFile,
+        @RequestParam(value = "price", required = false) Double price,
+        @RequestParam(value = "category", required = false) String category, // Add category parameter
+        HttpServletRequest request) {
+
+    // ... existing code ...
+
+    try {
+        // Update fields if provided
+        if (title != null && !title.trim().isEmpty()) {
+            software.setTitle(title.trim());
+        }
+
+        if (price != null && price > 0) {
+            software.setPrice(price);
+        }
+
+        if (category != null && !category.trim().isEmpty()) {
+            software.setCategory(category.trim());
+        }
+
+        // ... existing file update code ...
+
+        Software updated = softwareRepository.save(software);
+        return ResponseEntity.ok(updated);
+
+    } catch (IOException e) {
+        // ... existing error handling ...
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     /**
      * Helper method to get file extension

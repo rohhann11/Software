@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://192.168.1.33:3000")
+@CrossOrigin(origins = "http://192.168.1.34:3000")
 @RequestMapping("/api")
 public class PaymentController {
 

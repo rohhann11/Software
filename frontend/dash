@@ -175,19 +175,20 @@
     .logout-btn { background: #e74c3c; }
     .logout-btn:hover { background: #c0392b; }
 
-    /* IMPROVED Category Filter Styles with Better Spacing */
+    /* IMPROVED Category Filter Styles */
     .category-filter {
       margin: 20px 0;
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       gap: 15px;
+      align-items: center;
       position: relative;
       z-index: 100;
     }
 
     .filter-controls {
       display: flex;
-      gap: 30px; /* Increased gap for better spacing */
+      gap: 15px;
       align-items: center;
       flex-wrap: wrap;
     }
@@ -195,22 +196,19 @@
     .filter-group {
       display: flex;
       align-items: center;
-      gap: 10px;
-      flex-shrink: 0;
+      gap: 8px;
     }
 
     .filter-label {
       font-weight: 500;
       color: #0f0f0f;
       white-space: nowrap;
-      font-size: 0.9rem;
     }
 
     /* Category Dropdown */
     .category-dropdown {
       position: relative;
       min-width: 200px;
-      flex-shrink: 0;
     }
 
     .category-select {
@@ -291,11 +289,8 @@
       border: 2px solid #ddd;
       border-radius: 8px;
       font-size: 0.9rem;
-      min-width: 250px;
-      flex: 1;
-      max-width: 400px;
+      width: 250px;
       transition: border-color 0.2s;
-      margin-left: 20px; /* Added margin for spacing */
     }
 
     .search-box:focus {
@@ -308,14 +303,11 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 15px;
-      flex-wrap: wrap;
-      gap: 10px;
     }
 
     .results-count {
       color: #606060;
       font-size: 0.9rem;
-      white-space: nowrap;
     }
 
     /* Download status */
@@ -476,7 +468,6 @@
       cursor: pointer;
       font-size: 0.85rem;
       transition: background 0.2s;
-      white-space: nowrap;
     }
 
     .clear-filter:hover {
@@ -498,8 +489,6 @@
       border: 1px solid #3498db;
       border-radius: 6px;
       font-size: 0.85rem;
-      margin-top: 10px;
-      flex-wrap: wrap;
     }
 
     .active-filter span {
@@ -508,91 +497,31 @@
     }
 
     /* Responsive improvements */
-    @media (max-width: 1024px) {
-      .filter-controls {
-        gap: 20px;
-      }
-      
-      .search-box {
-        min-width: 200px;
-        margin-left: 15px;
-      }
-    }
-
     @media (max-width: 768px) {
       .category-filter {
-        gap: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
       }
       
       .filter-controls {
         width: 100%;
         flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
+        align-items: flex-start;
       }
       
       .filter-group {
         width: 100%;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
       }
       
       .category-dropdown, .search-box {
         width: 100%;
-        min-width: auto;
-        max-width: none;
-        margin-left: 0; /* Remove margin on mobile */
-      }
-      
-      .search-box {
-        margin-top: 5px;
       }
       
       .modal-content {
         margin: 10px;
         padding: 20px;
       }
-      
-      .filter-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      
-      .results-count {
-        margin-top: 5px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .filter-controls {
-        gap: 10px;
-      }
-      
-      .category-dropdown {
-        min-width: auto;
-      }
-      
-      .search-box {
-        min-width: auto;
-      }
-    }
-
-    /* New layout to ensure proper spacing */
-    .filter-row {
-      display: flex;
-      align-items: center;
-      gap: 30px; /* Increased gap for better spacing */
-      flex-wrap: wrap;
-      width: 100%;
-    }
-
-    .filter-left {
-      display: flex;
-      align-items: center;
-      gap: 30px; /* Increased gap for better spacing */
-      flex-wrap: wrap;
-      flex: 1;
     }
   </style>
 </head>
@@ -623,33 +552,31 @@
           <div class="results-count" id="resultsCount"></div>
         </div>
         
-        <!-- IMPROVED Category Filter with Better Spacing -->
+        <!-- IMPROVED Category Filter -->
         <div class="category-filter">
-          <div class="filter-row">
-            <div class="filter-left">
-              <div class="filter-group">
-                <label class="filter-label">Filter by Category:</label>
-                <div class="category-dropdown">
-                  <div class="category-select" id="categorySelect">
-                    <span>All Categories</span>
-                    <span>▼</span>
-                  </div>
-                  <div class="category-options" id="categoryOptions">
-                    <div class="category-option active" data-category="all">All Categories</div>
-                    <!-- Categories will be loaded dynamically -->
-                  </div>
+          <div class="filter-controls">
+            <div class="filter-group">
+              <label class="filter-label">Filter by Category:</label>
+              <div class="category-dropdown">
+                <div class="category-select" id="categorySelect">
+                  <span>All Categories</span>
+                  <span>▼</span>
+                </div>
+                <div class="category-options" id="categoryOptions">
+                  <div class="category-option active" data-category="all">All Categories</div>
+                  <!-- Categories will be loaded dynamically -->
                 </div>
               </div>
-              
-              <div class="filter-group">
-                <input type="text" class="search-box" id="searchBox" placeholder="Search software...">
-              </div>
+            </div>
+            
+            <div class="filter-group">
+              <input type="text" class="search-box" id="searchBox" placeholder="Search software...">
             </div>
           </div>
           
           <div id="activeFilter" class="active-filter" style="display: none;">
             <span>Active filter: <strong id="activeFilterText">All Categories</strong></span>
-            <button class="clear-filter" onclick="clearFilters()">Clear Filters</button>
+            <button class="clear-filter" onclick="clearFilters()">Clear</button>
           </div>
         </div>
         
