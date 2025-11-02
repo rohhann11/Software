@@ -1,0 +1,116 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for full changelog if required
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Setup Environment
+        run: |
+          echo "=== Environment Setup ==="
+          java -version
+          mvn -version
+          pwd
+          echo "Git commit: ${{ github.sha }}"
+
+      - name: Dependency Check
+        run: mvn dependency:tree -q
+        working-directory: ./backend
+
+      - name: Compile Code
+        run: mvn clean compile -q
+        working-directory: ./backend
+
+      - name: Run Unit Tests
+        run: mvn test -q || true
+        working-directory: ./backend
+
+      - name: Publish Test Results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: surefire-reports
+          path: backend/target/surefire-reports/*.xml
+          if-no-files-found: ignore
+
+      - name: Code Coverage
+        run: mvn jacoco:report -q
+        working-directory: ./backend
+
+      - name: Archive Code Coverage Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: jacoco-report
+          path: backend/target/site/jacoco/
+          if-no-files-found: ignore
+
+      - name: Static Code Analysis
+        run: |
+          mvn checkstyle:checkstyle -q || true
+          mvn pmd:pmd -q || true
+        working-directory: ./backend
+
+      - name: Archive Checkstyle & PMD Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-analysis-reports
+          path: |
+            backend/target/checkstyle-result.xml
+            backend/target/pmd.xml
+          if-no-files-found: ignore
+
+      - name: Build Package
+        run: mvn package -DskipTests -q
+        working-directory: ./backend
+
+      - name: Archive JAR Artifact
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: built-jar
+          path: backend/target/*.jar
+
+      - name: Security Scan
+        run: mvn org.owasp:dependency-check-maven:check -q || true
+        working-directory: ./backend
+
+      - name: Archive Security Scan Report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-report
+          path: backend/target/dependency-check-report.html
+          if-no-files-found: ignore
+
+      - name: Generate Build Info
+        run: |
+          echo "Build: ${{ github.run_number }}" > build-info.txt
+          echo "Status: ${{ job.status }}" >> build-info.txt
+          echo "Commit: ${{ github.sha }}" >> build-info.txt
+          # GitHub Actions doesn't expose a direct duration field, but you can compute if needed
+
+      - name: Archive Build Info
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-info
+          path: build-info.txt
